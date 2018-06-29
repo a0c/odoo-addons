@@ -30,12 +30,14 @@ class ContactUs(main.contactus):
     @http.route(['/crm/contactus'], type='http', auth="public",
                 website=True, multilang=True)
     def contactus(self, *args, **kw):
-        challenge = kw.pop('recaptcha_challenge_field', None)
-        response = kw.pop('recaptcha_response_field', None)
-        if not kw or not challenge or not response:
-            pass
-        elif request.website.is_captcha_valid(challenge, response):
+        response = kw.pop('g-recaptcha-response', None)
+        if not kw or not response:
+            if 'kwargs' not in kw:
+                kw['kwargs'] = kw.items()
+        elif request.website.is_captcha_valid(response):
             return super(ContactUs, self).contactus(*args, **kw)
         else:
+            if 'kwargs' not in kw:
+                kw['kwargs'] = kw.items()
             kw['error'] = set(['recaptcha_response_field'])
         return request.website.render("website.contactus", kw)

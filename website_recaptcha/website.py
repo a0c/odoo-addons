@@ -19,12 +19,10 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 ##############################################################################
-from openerp.osv import orm, fields
+import json
+import requests
 
-try:
-    from recaptcha.client import captcha
-except ImportError:
-    pass
+from openerp.osv import orm, fields
 
 
 class Website(orm.Model):
@@ -52,15 +50,11 @@ class Website(orm.Model):
         'recaptcha_theme': 'red'
     }
 
-    def is_captcha_valid(self, cr, uid, ids, challenge, response,
-                         context=None):
+    def is_captcha_valid(self, cr, uid, ids, response, context=None):
         assert len(ids) == 1
 
         website = self.browse(cr, uid, ids[0])
-        res = captcha.submit(
-            challenge,
-            response,
-            website.recaptcha_private_key,
-            website.name
-        )
-        return res.is_valid
+        r = requests.post("https://www.google.com/recaptcha/api/siteverify",
+                          data={'secret': website.recaptcha_private_key, 'response': response})
+        resp = json.loads(r.text)
+        return resp['success']
