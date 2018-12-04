@@ -8,14 +8,16 @@ class res_partner(osv.osv):
     _inherit = 'res.partner'
 
     _columns = {
-        'property_account_prepayable': fields.many2one(
-            'account.account',
+        'property_account_prepayable': fields.property(
+            type='many2one',
+            relation='account.account',
             string="Account Payable (Prepayment)",
             domain="[('type', '=', 'payable')]",
             help="This account will be used instead of the default one as the \
                 prepayment payable account for the current partner"),
-        'property_account_prereceivable': fields.many2one(
-            'account.account',
+        'property_account_prereceivable': fields.property(
+            type='many2one',
+            relation='account.account',
             string="Account Receivable (Prepayment)",
             domain="[('type', '=', 'receivable')]",
             help="This account will be used instead of the default one as the \
